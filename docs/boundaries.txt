@@ -1,0 +1,8 @@
+# Architecture boundaries, enforced by `kit.py check` (pre-commit and CI) on every changed file.
+# Format:  <files glob>  !->  <import glob>   # reason
+# The import glob is matched against the resolved path of relative imports and against the raw specifier
+# (package names, aliases like @/server/db). ** and * both match across folders. Supports JS/TS, Python, Go.
+# The kickoff writes the real rules for your stack. Examples:
+# src/components/**     !->  **/server/**      # UI never imports server code
+# src/features/*/ui/**  !->  **/db/**          # screens go through the service layer
+# packages/db/**        !->  apps/**           # the data layer never imports an app
