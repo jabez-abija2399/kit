@@ -81,7 +81,7 @@
           "evidence": ""
         }
       ],
-      "status": "todo",
+      "status": "in_progress",
       "notes": "New test files only, under tests/. Do not edit scripts/kit.py to make tests pass. If a test exposes a real bug, record it in agent/known-issues.md and ask the human for GUARD_ADMIN=1."
     },
     {
