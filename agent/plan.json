@@ -1,0 +1,64 @@
+{
+  "requirements": [
+    { "id": "REQ-001", "text": "The guards in scripts/kit.py are proven by tests, so the product is not trusted on faith", "features": ["FEAT-001"] },
+    { "id": "REQ-002", "text": "OpenCode users get the same tool-call blocking as Claude Code and Cursor users", "features": ["FEAT-002"] },
+    { "id": "REQ-003", "text": "Every pull request shows the kit's evidence result, so teams see proof without opening a terminal", "features": ["FEAT-003"] },
+    { "id": "REQ-004", "text": "Codex users install the guard hook with one command instead of manual steps", "features": ["FEAT-004"] }
+  ],
+  "features": [
+    {
+      "id": "FEAT-001",
+      "title": "Test suite for the guards in scripts/kit.py",
+      "priority": 1,
+      "depends_on": [],
+      "origin": "TECHNICAL REQUIREMENT",
+      "acceptance": [
+        { "id": "AC-001-01", "kind": "happy", "check": "A test creates a scratch git repo, runs kit.py init, and kit.py check exits 0" },
+        { "id": "AC-001-02", "kind": "permission", "check": "Editing scripts/kit.py in a scratch repo makes kit.py check exit non-zero with 'protected guard file changed'" },
+        { "id": "AC-001-03", "kind": "negative", "check": "kit.py done fails when any acceptance criterion of the feature has no PASS evidence" },
+        { "id": "AC-001-04", "kind": "attack", "check": "Deleting or skipping an existing test (for example adding .skip) is reported by kit.py check" },
+        { "id": "AC-001-05", "kind": "negative", "check": "dep-check or check reports a new package that has no entry in docs/dependencies.md" }
+      ],
+      "notes": "New test files only, under tests/. Do not edit scripts/kit.py to make tests pass. If a test exposes a real bug, record it in agent/known-issues.md and ask the human for GUARD_ADMIN=1."
+    },
+    {
+      "id": "FEAT-002",
+      "title": "OpenCode guard plugin",
+      "priority": 2,
+      "depends_on": ["FEAT-001"],
+      "origin": "USER REQUIREMENT",
+      "acceptance": [
+        { "id": "AC-002-01", "kind": "happy", "check": "An OpenCode plugin file in .opencode/plugins/ loads without error in OpenCode" },
+        { "id": "AC-002-02", "kind": "permission", "check": "The plugin's tool.execute.before hook throws when the tool call edits a protected guard file" },
+        { "id": "AC-002-03", "kind": "negative", "check": "The plugin lets ordinary edits through without throwing" }
+      ],
+      "notes": "Guard files are human-only: a human must set GUARD_ADMIN=1 to commit the plugin. Verify the exact tool.execute.before signature in https://opencode.ai/docs/plugins/ first and record it in docs/decisions.md. Hook behaviour is verified only by running OpenCode, not by reading the docs."
+    },
+    {
+      "id": "FEAT-003",
+      "title": "Pull request comment with the kit's evidence result",
+      "priority": 3,
+      "depends_on": ["FEAT-001"],
+      "origin": "USER REQUIREMENT",
+      "acceptance": [
+        { "id": "AC-003-01", "kind": "happy", "check": "On a pull request, the CI workflow posts one comment with the verify summary (PASS, FAIL or SKIP per gate)" },
+        { "id": "AC-003-02", "kind": "negative", "check": "When the kit check fails, the workflow fails and the comment names the failing gate" },
+        { "id": "AC-003-03", "kind": "permission", "check": "The comment step runs only with pull-requests: write permission and never prints secrets" }
+      ],
+      "notes": ".github/workflows/verify.yml is a CI file and may be protected: treat changes as human-approved. Update the comment in place on re-runs instead of posting a new one each time."
+    },
+    {
+      "id": "FEAT-004",
+      "title": "One-command Codex guard hook installer",
+      "priority": 4,
+      "depends_on": ["FEAT-001"],
+      "origin": "USER REQUIREMENT",
+      "acceptance": [
+        { "id": "AC-004-01", "kind": "happy", "check": "kit.py hooks --install writes ~/.codex/config.toml and ~/.codex/hooks.json with the guard entry" },
+        { "id": "AC-004-02", "kind": "negative", "check": "Running the installer twice does not duplicate the hook entry" },
+        { "id": "AC-004-03", "kind": "boundary", "check": "An existing ~/.codex/hooks.json with other hooks is merged, not overwritten" }
+      ],
+      "notes": "Writes to the user's home folder. Show the diff and ask before writing. kit.py is protected: a human sets GUARD_ADMIN=1 to commit the change."
+    }
+  ]
+}
