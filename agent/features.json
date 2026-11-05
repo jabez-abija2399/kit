@@ -27,6 +27,27 @@
       "features": [
         "FEAT-004"
       ]
+    },
+    {
+      "id": "REQ-005",
+      "text": "A feature is finished with one command, and the command never passes a criterion without a named passing test",
+      "features": [
+        "FEAT-005"
+      ]
+    },
+    {
+      "id": "REQ-006",
+      "text": "The agent never changes protected files, admin switches or pushes as part of finishing a feature",
+      "features": [
+        "FEAT-005"
+      ]
+    },
+    {
+      "id": "REQ-007",
+      "text": "A new project gets its test command set up at init, so no manual step is needed before the first feature",
+      "features": [
+        "FEAT-006"
+      ]
     }
   ],
   "features": [
@@ -203,6 +224,118 @@
       ],
       "status": "todo",
       "notes": "Writes to the user's home folder. Show the diff and ask before writing. kit.py is protected: a human sets GUARD_ADMIN=1 to commit the change."
+    },
+    {
+      "id": "FEAT-005",
+      "title": "kit.py finish FEAT-x: one command that runs the gate, passes proven criteria, marks done, writes progress",
+      "priority": 5,
+      "depends_on": [
+        "FEAT-001"
+      ],
+      "origin": "USER REQUIREMENT",
+      "spec": null,
+      "security_sensitive": false,
+      "review_required": false,
+      "acceptance": [
+        {
+          "id": "AC-005-01",
+          "kind": "happy",
+          "check": "In a scratch repo with a feature whose criteria all have named passing tests, kit.py finish FEAT-x exits 0, marks every criterion pass and the feature done, and appends a progress entry naming the gate result",
+          "passes": false,
+          "verified_by": "",
+          "evidence": ""
+        },
+        {
+          "id": "AC-005-02",
+          "kind": "negative",
+          "check": "A criterion whose ID appears in no passing test is not marked pass; finish exits non-zero and lists that criterion under NEEDS YOU",
+          "passes": false,
+          "verified_by": "",
+          "evidence": ""
+        },
+        {
+          "id": "AC-005-03",
+          "kind": "negative",
+          "check": "A criterion whose named test fails is not marked pass, even when other criteria pass",
+          "passes": false,
+          "verified_by": "",
+          "evidence": ""
+        },
+        {
+          "id": "AC-005-04",
+          "kind": "permission",
+          "check": "finish refuses to run when a protected file has uncommitted changes, and prints the exact files the human must commit",
+          "passes": false,
+          "verified_by": "",
+          "evidence": ""
+        },
+        {
+          "id": "AC-005-05",
+          "kind": "permission",
+          "check": "finish never sets GUARD_ADMIN, SPEC_CHANGE_APPROVED or KIT_ALLOW_* and never runs git push",
+          "passes": false,
+          "verified_by": "",
+          "evidence": ""
+        },
+        {
+          "id": "AC-005-06",
+          "kind": "boundary",
+          "check": "finish refuses when agent/last-verify.log is older than the newest source file, and runs the gate first when asked with --gate",
+          "passes": false,
+          "verified_by": "",
+          "evidence": ""
+        },
+        {
+          "id": "AC-005-07",
+          "kind": "negative",
+          "check": "finish with any manual criterion (no test ID) stops before marking done and asks the human for evidence",
+          "passes": false,
+          "verified_by": "",
+          "evidence": ""
+        }
+      ],
+      "status": "todo",
+      "notes": "kit.py is protected: the human commits it with the admin switch. Output is one screen: what passed, what needs the human, the one next command. Do not weaken the existing pass rule: pass by hand keeps working for manual criteria."
+    },
+    {
+      "id": "FEAT-006",
+      "title": "Test command set up automatically at init, with verbose names for traceability",
+      "priority": 6,
+      "depends_on": [
+        "FEAT-005"
+      ],
+      "origin": "USER REQUIREMENT",
+      "spec": null,
+      "security_sensitive": false,
+      "review_required": false,
+      "acceptance": [
+        {
+          "id": "AC-006-01",
+          "kind": "happy",
+          "check": "kit.py init in a Python project writes VERIFY_TEST with a verbose runner so test names appear in the log",
+          "passes": false,
+          "verified_by": "",
+          "evidence": ""
+        },
+        {
+          "id": "AC-006-02",
+          "kind": "happy",
+          "check": "kit.py init in a Node project writes VERIFY_TEST as npm test",
+          "passes": false,
+          "verified_by": "",
+          "evidence": ""
+        },
+        {
+          "id": "AC-006-03",
+          "kind": "negative",
+          "check": "When no stack is detected, init prints the one line the human must add and does not guess",
+          "passes": false,
+          "verified_by": "",
+          "evidence": ""
+        }
+      ],
+      "status": "todo",
+      "notes": "Touches kit.py and verify.config (protected): the human commits both. Detection uses only files that exist (pyproject.toml, package.json, go.mod, Cargo.toml)."
     }
   ]
 }
