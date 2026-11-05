@@ -50,14 +50,14 @@ class ScratchRepo(unittest.TestCase):
 
 
 class TestCleanInstall(ScratchRepo):
-    def test_fresh_install_passes_check(self):
+    def test_AC_001_01_fresh_install_passes_check(self):
         code, out = kit(self.repo, "check")
         self.assertEqual(code, 0, out)
         self.assertIn("0 error(s)", out)
 
 
 class TestProtectedFiles(ScratchRepo):
-    def test_editing_protected_kit_script_is_blocked(self):
+    def test_AC_001_02_editing_protected_kit_script_is_blocked(self):
         with open(self.repo / "scripts" / "kit.py", "a") as f:
             f.write("\n# agent edit\n")
         code, out = kit(self.repo, "check")
@@ -66,7 +66,7 @@ class TestProtectedFiles(ScratchRepo):
 
 
 class TestDoneNeedsEvidence(ScratchRepo):
-    def test_done_fails_without_pass_evidence(self):
+    def test_AC_001_03_done_fails_without_pass_evidence(self):
         code, out = kit(self.repo, "import", "agent/plan.example.json")
         self.assertEqual(code, 0, out)
         code, out = kit(self.repo, "start", "FEAT-001")
@@ -77,7 +77,7 @@ class TestDoneNeedsEvidence(ScratchRepo):
 
 
 class TestTestTampering(ScratchRepo):
-    def test_deleted_test_file_is_reported(self):
+    def test_AC_001_04_deleted_test_file_is_reported(self):
         self.write("tests/test_math.py", "def test_add():\n    assert 1 + 1 == 2\n")
         git(self.repo, "add", "-A")
         git(self.repo, "commit", "-q", "-m", "add test")
@@ -86,7 +86,7 @@ class TestTestTampering(ScratchRepo):
         self.assertNotEqual(code, 0, out)
         self.assertIn("test file deleted", out)
 
-    def test_added_skip_is_reported(self):
+    def test_AC_001_04_added_skip_is_reported(self):
         self.write("tests/math.test.js", "it('adds', () => { expect(1 + 1).toBe(2); });\n")
         git(self.repo, "add", "-A")
         git(self.repo, "commit", "-q", "-m", "add test")
@@ -99,7 +99,7 @@ class TestTestTampering(ScratchRepo):
 
 
 class TestUnrecordedPackage(ScratchRepo):
-    def test_new_dependency_without_record_is_blocked(self):
+    def test_AC_001_05_new_dependency_without_record_is_blocked(self):
         self.write("package.json", '{"name": "app", "dependencies": {}}\n')
         git(self.repo, "add", "-A")
         git(self.repo, "commit", "-q", "-m", "add manifest")
