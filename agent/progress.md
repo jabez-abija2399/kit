@@ -13,3 +13,10 @@ Verified: python3 -m unittest discover -s tests -> 6 tests OK (this session). Mu
 NOT VERIFIED: scripts/verify.sh gate (VERIFY_TEST is empty in the protected verify.config), so kit.py pass / done cannot be recorded yet.
 Open questions for the human: set VERIFY_TEST="python3 -m unittest discover -s tests" in scripts/verify.config (protected, human commits it); decide KI-001 (exclude string literals from the skip scan?).
 Next step: after the gate passes, pass AC-001-01..05 and done FEAT-001; then FEAT-002/003 unlock (FEAT-004 needs a kit.py change).
+
+## 2026-11-05 | FEAT-001 | status: done
+Changed: tests/test_guards.py (6 tests named after AC-001-01..05); agent/features.json (status, recorded files); the verbose test runner is now set in scripts/verify.config (human-committed, a93d925).
+Verified: verify.sh full RESULT PASS; the log names every AC test (test-log evidence for AC-001-01..05); mutation checks earlier disabled the protected-file check and the deleted-test check, and the matching tests failed.
+NOT VERIFIED: typecheck, lint, CI-only scanners/build/e2e (skipped by config).
+Open questions for the human: KI-001 (skip-like text inside test files is flagged; the decision is still open).
+Next step: FEAT-005 (kit.py finish) is next in the plan. FEAT-002 is the OpenCode plugin.
